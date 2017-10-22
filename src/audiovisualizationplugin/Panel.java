@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -27,7 +28,7 @@ class Panel extends JPanel {
     private double escalaY = 0.0141;
     private static int x0 = 15;
     private int y0;
-    private int xp;
+    private int xp,xb,sbValue;
     private int w,h;
     public int fin;
     JScrollPane scroller;
@@ -35,13 +36,18 @@ class Panel extends JPanel {
     JPanel drawingPane;    
     AudioInputStream flujoEntradaAudio;
     Reproductor r;
+    
+    JButton AmplitudU = new JButton("+");
+    JButton AmplitudD = new JButton("-");
+    JButton LongitudU = new JButton("+");
+    JButton LongitudD = new JButton("-");
    
     
     public Panel(File f){
         drawingPane = new DrawingPane();
         drawingPane.setBackground(Color.BLACK);
         int totalFramesLeidos = 0;
-        xp=x0;
+        xp=x0-5;
         try {
             flujoEntradaAudio = AudioSystem.getAudioInputStream(f);
             int bytesPorFrame = flujoEntradaAudio.getFormat().getFrameSize();            
@@ -75,6 +81,38 @@ class Panel extends JPanel {
         add(scroller, BorderLayout.CENTER);
         r = new Reproductor(f);
         add(r);
+        AmplitudU.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                        setUEscalaY();
+                        repaint();
+                }
+                
+            });  
+            AmplitudD.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                        setDEscalaY();
+                        repaint();
+                }
+                
+            });  
+            LongitudU.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                        setUEscalaX();
+                        repaint();
+                }
+                
+            }); 
+            LongitudD.addActionListener(new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                        setDEscalaX();
+                        repaint();
+                }
+                
+            }); 
     }
     
     public void graficarEjes(Graphics g) {
@@ -102,6 +140,14 @@ class Panel extends JPanel {
             graficarEjes(g);
             graficarProgreso(g);
             
+            add(AmplitudU);
+            add(AmplitudD);
+            add(LongitudU);
+            add(LongitudD);
+            AmplitudU.setLocation(xb+37, y0-87);
+            AmplitudD.setLocation(xb+37, y0-33);
+            LongitudU.setLocation(xb+60, y0-60);
+            LongitudD.setLocation(xb+20, y0-60);
         }
     }
     public void graficarEscpectrograma(Graphics g){
@@ -138,12 +184,27 @@ class Panel extends JPanel {
                 (int)Math.round(x2+x0),
                 (int)Math.round(y0-y2));
     }
-     public void setXP(int xp){
-         this.xp = xp;
-     }
-     public int getXP(){
-         return xp;
-     }
+    public void setDEscalaX(){
+        if(escalaX<30){            
+            escalaX++;
+        }
+    }
+    public void setUEscalaX(){
+        if(escalaX>5){
+            escalaX--;
+        }
+    }
+    
+    public void setDEscalaY(){
+        if(escalaY<20){            
+            escalaY++;
+        }
+    }
+    public void setUEscalaY(){
+        if(escalaY>2){
+            escalaY--;
+        }
+    }
      
      public void play(){
          r.play();
@@ -152,22 +213,21 @@ class Panel extends JPanel {
                 int i=0;
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    double aux = time()/15.6;
+                    double aux=(r.time()/r.duration())*escalaX;
                     JScrollBar sb = scroller.getHorizontalScrollBar();
-                    if(aux<=fin){
-                         setXP((int)aux+15);
-                          repaint();
-                          if((aux-15)>=sb.getValue()){            
-                              sb.setValue((int)aux-25);
-                          }
-                          if((aux-15)<sb.getValue()){
-                              sb.setValue((int)aux-25);
-                          }
+                    xp= (int)(x0+aux-5);
+                    if(xp<=fin){
+                        sb.setValue((int)aux-(x0+10));
+                        if(sb.getValue()!=sbValue){
+                            xb=xp;
+                        }
+                        sbValue=sb.getValue();
                      }
                     else{
-                     setXP(15);
-                     repaint();         
-                     sb.setValue(0);
+                        xp=x0-5;
+                        xb=xp;
+                        repaint();         
+                        sb.setValue(0);
                     }
                    
                 }
