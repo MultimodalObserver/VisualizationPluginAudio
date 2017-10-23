@@ -184,25 +184,26 @@ class Panel extends JPanel {
                 (int)Math.round(x2+x0),
                 (int)Math.round(y0-y2));
     }
+     
     public void setDEscalaX(){
-        if(escalaX<30){            
-            escalaX++;
+        if(escalaX<1){            
+            escalaX=escalaX/1.5;
         }
     }
     public void setUEscalaX(){
-        if(escalaX>5){
-            escalaX--;
+        if(escalaX>0){
+            escalaX=escalaX*1.5;
         }
     }
     
     public void setDEscalaY(){
-        if(escalaY<20){            
-            escalaY++;
+        if(escalaY<1){            
+            escalaY=escalaY/1.5;
         }
     }
     public void setUEscalaY(){
-        if(escalaY>2){
-            escalaY--;
+        if(escalaY>0){
+            escalaY=escalaY*1.5;
         }
     }
      
@@ -213,9 +214,11 @@ class Panel extends JPanel {
                 int i=0;
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    double aux=(r.time()/r.duration())*escalaX;
+                    double aux=(r.time()*1000)/r.duration();
+                    aux= aux/10000;
+                    aux=aux*fin;
                     JScrollBar sb = scroller.getHorizontalScrollBar();
-                    xp= (int)(x0+aux-5);
+                    xp= (int)(x0+aux*10-5);
                     if(xp<=fin){
                         sb.setValue((int)aux-(x0+10));
                         if(sb.getValue()!=sbValue){
@@ -239,6 +242,7 @@ class Panel extends JPanel {
          r.pause();
      }
      public void stop(){
+         xp=x0-5;
          r.stop();
      }
      public long time(){
