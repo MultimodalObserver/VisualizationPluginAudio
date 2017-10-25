@@ -176,7 +176,7 @@ class Panel extends JPanel {
         } 
     }
      public void AjustarScroll(){
-        scroller.setPreferredSize(new Dimension(getWidth(),300));
+        scroller.setPreferredSize(new Dimension(getWidth(),getHeight()));
     }
      public void linea(double x1, double y1, double x2, double y2, Graphics g) {
         g.drawLine((int)Math.round(x1+x0),
@@ -220,11 +220,12 @@ class Panel extends JPanel {
                     JScrollBar sb = scroller.getHorizontalScrollBar();
                     xp= (int)(x0+aux*10-5);
                     if(xp<=fin){
-                        sb.setValue((int)aux-(x0+10));
+                        sb.setValue(xp-10);
                         if(sb.getValue()!=sbValue){
                             xb=xp;
                         }
                         sbValue=sb.getValue();
+                        repaint();
                      }
                     else{
                         xp=x0-5;
