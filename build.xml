@@ -10,13 +10,6 @@
 <project name="AudioVisualizationPlugin" default="default" basedir=".">
     <target name = "-post-jar">
         <jar jarfile="${dist.jar}" update = "true">
-            <zipfileset src="C:\Users\User\Desktop\lib\basicplayer3.0.jar" excludes="META-INF/*"/>
-            <zipfileset src="C:\Users\User\Desktop\lib\commons-logging-api.jar" excludes="META-INF/*"/>
-            <zipfileset src="C:\Users\User\Desktop\lib\jl1.0.jar" excludes="META-INF/*"/>
-            <zipfileset src="C:\Users\User\Desktop\lib\kj_dsp1.1.jar" excludes="META-INF/*"/>
-            <zipfileset src="C:\Users\User\Desktop\lib\mp3spi1.9.4.jar" excludes="META-INF/*"/>
-            <zipfileset src="C:\Users\User\Desktop\lib\tritonus_share.jar" excludes="META-INF/*"/>
-            <zipfileset src="C:\Users\User\Desktop\lib\vorbisspi1.0.2.jar" excludes="META-INF/*"/>
             <manifest>
                 <attribute name = "Main-Class" value="audiovisualizationplugin.AudioVisualizationPlugin"/>
             </manifest>

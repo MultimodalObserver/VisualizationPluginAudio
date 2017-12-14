@@ -20,12 +20,15 @@ public class AudioPlayer implements Playable{
     private boolean isPaused=true;
     private Panel ap;
     private String path;
+    private Reproductor r;
+    private boolean isSync;
     
 
     private static final Logger logger = Logger.getLogger(AudioPlayer.class.getName());
 
     public AudioPlayer(File file) {
-        ap = new Panel(file);
+            r = new Reproductor(file);
+            ap = new Panel(file,r);
             path = file.getAbsolutePath();
             String path2 =  path.substring(0,path.lastIndexOf(".")) + "-temp.txt";
             String cadena;
@@ -63,13 +66,14 @@ public class AudioPlayer implements Playable{
             ap.pause();
             isPlaying=false;
             isPaused=true;
+            r.pause();
         }
     }
 
     @Override
     public void seek(long desiredMillis) {
         if(desiredMillis>=start && desiredMillis<=end){            
-            ap.current(desiredMillis-start);
+            r.current(desiredMillis-start);
         }
     }
     
@@ -86,23 +90,23 @@ public class AudioPlayer implements Playable{
     @Override
     public void play(long millis) {
         if(millis>=start && millis <=end){
-            if(!isPlaying){
-                ap.play();
-                if(!isPaused){
-                    ap.stop();
-                    seek(start);
-                    ap.play();
-                    seek(start);
-                    ap.pause();
-                    seek(start);
-                    ap.play();
-                    seek(start);
-                }
-                else{
-                    isPaused=false;
-                }
-                isPlaying=true;
+            new Thread(new Runnable() {
+                    @Override
+                    public void run() {             
+                        ap.play(millis-start,end-start);
+                        
+                     }
+                }).start(); 
+            if(isSync){                                             
+                r.play(millis-start,end-start,isSync);
             }
+            if(!isSync){
+                if(!isPlaying){
+                    isPlaying=true;
+                    r.play(millis, end,isSync);
+                }
+            }
+            isPlaying=true;
         }
     }
 
@@ -110,7 +114,13 @@ public class AudioPlayer implements Playable{
     public void stop() {
         if(isPlaying){
             ap.stop();
+            r.stop();
             isPlaying=false;
         }
     }    
+
+    @Override
+    public void sync(boolean bln) {
+        isSync=bln;
+    }
 }

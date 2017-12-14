@@ -20,6 +20,9 @@ public class Reproductor extends JPanel{
     private Media media;
     private MediaPlayer mediaPlayer;
     MediaView mediaView;
+    private boolean isPlaying=false;
+    double velocidad = 1;
+    double deltaT;
     public long end;
     long seekSlider=0;
     int cambio = 0;
@@ -61,13 +64,42 @@ public class Reproductor extends JPanel{
         return this;
     }
     
-    public void play(){
+    public void play(long millis, long end, boolean sync){
+        if(millis<end){
+             if(!isPlaying){
+                 if(sync){
+                    velocidad=0.85;                     
+                 }
+                 else{
+                     velocidad=1;
+                 }
+                mediaPlayer.setRate(velocidad);
+                mediaPlayer.play();
+                isPlaying=true;
+            }
+             if(millis%100==0){
+                deltaT = mediaPlayer.getCurrentTime().toMillis()-millis;
+                if((int)deltaT>0){
+                    if(velocidad>=0.1){
+                        velocidad = velocidad-0.025;
+                        mediaPlayer.setRate(velocidad);                    
+                    }
+                }else if((int)deltaT<0){
+                    if(velocidad<=1.1){
+                        velocidad = velocidad+0.025;       
+                        mediaPlayer.setRate(velocidad);             
+                    }
+                }                                              
+            }                             
+        }
         mediaPlayer.play();
     }
     public void stop(){
+        isPlaying=false;
         mediaPlayer.stop();
     }
     public void pause(){
+        isPlaying=false;
         mediaPlayer.pause();
     }
     public void current(long sw){

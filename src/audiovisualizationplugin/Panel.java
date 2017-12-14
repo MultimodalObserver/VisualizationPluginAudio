@@ -30,6 +30,7 @@ class Panel extends JPanel {
     private int y0;
     private int xp,xb,sbValue;
     private int w,h;
+    private boolean isPlaying = false;
     public int fin;
     JScrollPane scroller;
     Dimension area = new Dimension(0,0);
@@ -43,7 +44,7 @@ class Panel extends JPanel {
     JButton LongitudD = new JButton("-");
    
     
-    public Panel(File f){
+    public Panel(File f, Reproductor rep){
         drawingPane = new DrawingPane();
         drawingPane.setBackground(Color.BLACK);
         int totalFramesLeidos = 0;
@@ -79,7 +80,7 @@ class Panel extends JPanel {
         scroller = new JScrollPane(drawingPane);
         scroller.setPreferredSize(new Dimension(600,300));
         add(scroller, BorderLayout.CENTER);
-        r = new Reproductor(f);
+        r = rep;
         add(r);
         AmplitudU.addActionListener(new ActionListener(){
                 @Override
@@ -207,45 +208,36 @@ class Panel extends JPanel {
         }
     }
      
-     public void play(){
-         r.play();
-         int delay = 0; //milliseconds
-            ActionListener taskPerformer = new ActionListener() {
-                int i=0;
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    double aux=(r.time()*1000)/r.duration();
-                    aux= aux/10000;
-                    aux=aux*fin;
-                    JScrollBar sb = scroller.getHorizontalScrollBar();
-                    xp= (int)(x0+aux*10-5);
-                    if(xp<=fin){
-                        sb.setValue(xp-10);
-                        if(sb.getValue()!=sbValue){
-                            xb=xp;
-                        }
-                        sbValue=sb.getValue();
-                        repaint();
-                     }
-                    else{
-                        xp=x0-5;
-                        xb=xp;
-                        repaint();         
-                        sb.setValue(0);
-                    }
-                   
-                }
-            };
-            new Timer(delay, taskPerformer).start();
+     public void play(long millis,long end){
+        JScrollBar sb = scroller.getHorizontalScrollBar();
+        double factor = (datosVoz.size()*1000)/end;
+        factor=factor/1000;
+        double tem =((millis+1)*escalaX*factor);
+        xp= (int)(x0+tem-5);
+        sb = scroller.getHorizontalScrollBar();
+        if(xp<=fin){
+            repaint();
+            sb.setValue((int)tem-(x0+10));
+            if(sb.getValue()!=sbValue){
+                xb=xp;
+            }
+            sbValue=sb.getValue();
+        }else{
+            xp=x0-5;
+            xb=xp;
+            repaint();         
+            sb.setValue(0);
+        }
      }
           
      public void pause(){
-         r.pause();
+         isPlaying=false;
      }
      public void stop(){
+         isPlaying=false;
          xp=x0-5;
-         r.stop();
      }
+     
      public long time(){
          return r.time();
      }
