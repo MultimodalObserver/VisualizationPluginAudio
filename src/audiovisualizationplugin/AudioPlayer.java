@@ -93,20 +93,21 @@ public class AudioPlayer implements Playable{
             new Thread(new Runnable() {
                     @Override
                     public void run() {             
-                        ap.play(millis-start,end-start);
-                        
+                        ap.play(millis-start,end-start);                        
                      }
                 }).start(); 
-            if(isSync){                                             
-                r.play(millis-start,end-start,isSync);
-            }
-            if(!isSync){
-                if(!isPlaying){
-                    isPlaying=true;
-                    r.play(millis, end,isSync);
-                }
-            }
-            isPlaying=true;
+            new Thread(new Runnable() {
+                    @Override
+                    public void run() { 
+                        if(isSync){                                             
+                            r.play(millis-start,end-start,isSync);
+                        }
+                        if(!isSync && !isPlaying){
+                            r.play(millis, end,isSync);
+                        }
+                        isPlaying=true;                    
+                    }
+                }).start(); 
         }
     }
 

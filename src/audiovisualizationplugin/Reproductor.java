@@ -65,34 +65,36 @@ public class Reproductor extends JPanel{
     }
     
     public void play(long millis, long end, boolean sync){
-        if(millis<end){
-             if(!isPlaying){
-                 if(sync){
-                    velocidad=0.85;                     
-                 }
-                 else{
-                     velocidad=1;
-                 }
-                mediaPlayer.setRate(velocidad);
-                mediaPlayer.play();
-                isPlaying=true;
-            }
-             if(millis%100==0){
+        if(millis<=end){   
+            if(sync){
                 deltaT = mediaPlayer.getCurrentTime().toMillis()-millis;
-                if((int)deltaT>0){
-                    if(velocidad>=0.1){
-                        velocidad = velocidad-0.025;
-                        mediaPlayer.setRate(velocidad);                    
-                    }
-                }else if((int)deltaT<0){
-                    if(velocidad<=1.1){
-                        velocidad = velocidad+0.025;       
-                        mediaPlayer.setRate(velocidad);             
-                    }
-                }                                              
-            }                             
-        }
-        mediaPlayer.play();
+                if(deltaT==0 && !isPlaying){
+                    mediaPlayer.play();
+                    velocidad = 0.87;
+                    isPlaying=true;  
+                }
+                if(millis%350==0){
+                    deltaT = mediaPlayer.getCurrentTime().toMillis()-millis;
+                    if((int)deltaT>0){
+                        if(velocidad>=0.1){
+                            velocidad = velocidad-0.02;
+                            mediaPlayer.setRate(velocidad);                    
+                        }
+                    }else if((int)deltaT<0){
+                        if(velocidad<=1.1){
+                            velocidad = velocidad+0.04;       
+                            mediaPlayer.setRate(velocidad);             
+                        }
+                    }                                              
+                }
+            }
+            else{
+                isPlaying=true;
+                velocidad = 1;
+                mediaPlayer.setRate(velocidad);    
+                mediaPlayer.play();
+            }
+        }        
     }
     public void stop(){
         isPlaying=false;
