@@ -98,6 +98,7 @@ public class Reproductor extends JPanel{
     }
     public void stop(){
         isPlaying=false;
+        velocidad =1;
         mediaPlayer.stop();
     }
     public void pause(){
@@ -120,6 +121,9 @@ public class Reproductor extends JPanel{
     
     public long duration(){
         return (long)mediaPlayer.getTotalDuration().toMillis();
+    }
+    public MediaPlayer.Status getStatus(){
+       return mediaPlayer.getStatus();
     }
     
 }

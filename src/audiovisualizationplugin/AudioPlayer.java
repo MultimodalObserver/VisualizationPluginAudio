@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javafx.scene.media.MediaPlayer.Status.STOPPED;
 import javax.swing.SwingUtilities;
 import mo.core.ui.dockables.DockableElement;
 import mo.core.ui.dockables.DockablesRegistry;
@@ -89,25 +90,26 @@ public class AudioPlayer implements Playable{
 
     @Override
     public void play(long millis) {
-        if(millis>=start && millis <=end){
+        if(millis>=start && millis <end){
             new Thread(new Runnable() {
                     @Override
-                    public void run() {             
-                        ap.play(millis-start,end-start);                        
-                     }
-                }).start(); 
-            new Thread(new Runnable() {
-                    @Override
-                    public void run() { 
-                        if(isSync){                                             
-                            r.play(millis-start,end-start,isSync);
+                    public void run() {
+                        ap.play(millis-start,end-start);
+                        if(isSync){
+                            if(start-millis==0 ||r.getStatus()!=STOPPED){
+                                r.play(millis-start,end-start,isSync);                                
+                            }
                         }
                         if(!isSync && !isPlaying){
-                            r.play(millis, end,isSync);
+                            r.play(millis-start, end-start,isSync);
                         }
                         isPlaying=true;                    
                     }
-                }).start(); 
+                }).start();
+        }
+        else{
+            r.stop();
+            isPlaying=false;
         }
     }
 

@@ -210,8 +210,20 @@ class Panel extends JPanel {
      
      public void play(long millis,long end){
         JScrollBar sb = scroller.getHorizontalScrollBar();
-        double factor = (datosVoz.size()*1000)/end;
-        factor=factor/1000;
+        double factor=(datosVoz.size()*100)/end;
+        factor /=100;
+        double cont=1;
+        while(factor == 0){
+            factor = (datosVoz.size()*cont)/end;
+            factor=factor/cont;
+            cont*=1000;
+        }
+        while(factor<0){
+            cont/=5;
+            factor = (datosVoz.size()*cont)/end;
+            factor=factor/cont;
+        }
+        cont=1;
         double tem =((millis+1)*escalaX*factor);
         xp= (int)(x0+tem-5);
         sb = scroller.getHorizontalScrollBar();
