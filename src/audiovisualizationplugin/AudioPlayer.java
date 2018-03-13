@@ -27,7 +27,7 @@ public class AudioPlayer implements Playable{
 
     private static final Logger logger = Logger.getLogger(AudioPlayer.class.getName());
 
-    public AudioPlayer(File file) {
+    public AudioPlayer(File file,String id) {
             r = new Reproductor(file);
             ap = new Panel(file,r);
             path = file.getAbsolutePath();
@@ -53,7 +53,7 @@ public class AudioPlayer implements Playable{
         SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    DockableElement e = new DockableElement();
+                    DockableElement e = new DockableElement(id);
                     e.add(ap);
                     DockablesRegistry.getInstance().addAppWideDockable(e);
                 }

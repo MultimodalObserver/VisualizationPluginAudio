@@ -64,7 +64,7 @@ public class AudioVisConfig implements VisualizableConfiguration {
     
     private void ensurePlayerCreated() {
         if (player == null && !files.isEmpty()) {
-            player = new AudioPlayer(files.get(0));
+            player = new AudioPlayer(files.get(0),id);
         }
     }
 
