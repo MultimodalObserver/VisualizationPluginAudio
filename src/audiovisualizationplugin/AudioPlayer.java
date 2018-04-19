@@ -53,7 +53,8 @@ public class AudioPlayer implements Playable{
         SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    DockableElement e = new DockableElement(id);
+                    DockableElement e = new DockableElement();
+                    e.setTitleText(id);
                     e.add(ap);
                     DockablesRegistry.getInstance().addAppWideDockable(e);
                 }
@@ -94,7 +95,9 @@ public class AudioPlayer implements Playable{
             new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        ap.play(millis-start,end-start);
+                        if((millis-start)%50==0){
+                            ap.play(millis-start,end-start);
+                        }
                         if(isSync){
                             if(start-millis==0 ||r.getStatus()!=STOPPED){
                                 r.play(millis-start,end-start,isSync);                                

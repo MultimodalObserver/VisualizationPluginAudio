@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ResourceBundle;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -26,6 +27,7 @@ public class AudioDialog extends JDialog implements DocumentListener {
     JButton accept;
 
     ProjectOrganization org;
+    ResourceBundle dialogBundle = java.util.ResourceBundle.getBundle("properties/principal");
 
     boolean accepted = false;
 
@@ -54,7 +56,7 @@ public class AudioDialog extends JDialog implements DocumentListener {
         setLayout(new GridBagLayout());
         GridBConstraints gbc = new GridBConstraints();
 
-        JLabel label = new JLabel("Configuration name: ");
+        JLabel label = new JLabel(dialogBundle.getString("configuration_n"));
         nameField = new JTextField();
         nameField.getDocument().addDocumentListener(this);
 
@@ -69,7 +71,7 @@ public class AudioDialog extends JDialog implements DocumentListener {
         errorLabel.setForeground(Color.red);
         add(errorLabel, gbc.gx(0).gy(2).gw(3).a(GridBConstraints.LAST_LINE_START).wy(1));
 
-        accept = new JButton("Accept");
+        accept = new JButton(dialogBundle.getString("accept"));
         accept.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -110,7 +112,7 @@ public class AudioDialog extends JDialog implements DocumentListener {
 
     private void updateState() {
         if (nameField.getText().isEmpty()) {
-            errorLabel.setText("A name for this configuration must be specified");
+            errorLabel.setText(dialogBundle.getString("name"));
             accept.setEnabled(false);
         } else {
             errorLabel.setText("");

@@ -226,6 +226,9 @@ class Panel extends JPanel {
         cont=1;
         double tem =((millis+1)*escalaX*factor);
         xp= (int)(x0+tem-5);
+        if(xp<0){
+            xp*=(-1);
+        }
         sb = scroller.getHorizontalScrollBar();
         if(xp<=fin){
             repaint();
