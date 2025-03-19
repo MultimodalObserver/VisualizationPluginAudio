@@ -24,6 +24,11 @@ public class AudioVisConfig implements VisualizableConfiguration {
         files = new ArrayList<>();
     }
     
+    public AudioVisConfig(String id) {
+        this();
+        this.id = id;
+    }
+    
    @Override
     public String getId() {
         return id;
@@ -64,7 +69,7 @@ public class AudioVisConfig implements VisualizableConfiguration {
     
     private void ensurePlayerCreated() {
         if (player == null && !files.isEmpty()) {
-            player = new AudioPlayer(files.get(0),id);
+            player = new AudioPlayer(files.get(0));
         }
     }
 
@@ -72,7 +77,7 @@ public class AudioVisConfig implements VisualizableConfiguration {
     public void addFile(File file) {
         if ( !files.contains(file) ) {
             this.files.add(file);
-            player = new AudioPlayer(files.get(files.size()-1),id);
+            player = new AudioPlayer(files.get(files.size()-1));
         }
     }
 

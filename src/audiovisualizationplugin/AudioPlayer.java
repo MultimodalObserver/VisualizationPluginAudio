@@ -2,94 +2,109 @@ package audiovisualizationplugin;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static javafx.scene.media.MediaPlayer.Status.STOPPED;
-import javax.swing.SwingUtilities;
 import mo.core.ui.dockables.DockableElement;
 import mo.core.ui.dockables.DockablesRegistry;
 import mo.visualization.Playable;
+import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.media.MediaPlayer;
+import static javafx.scene.media.MediaPlayer.Status.STOPPED;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
-public class AudioPlayer implements Playable{
-
+public class AudioPlayer implements Playable {
+    
+    private Stage stage;
     private long start;
     private long end;
-    private boolean isPlaying=false;
-    private boolean isPaused=true;
+    private boolean isPlaying = false;
+    private boolean isPaused = true;
     private Panel ap;
     private String path;
     private Reproductor r;
     private boolean isSync;
-    
+    ResourceBundle dialogBundle = ResourceBundle.getBundle("properties/principal");
 
     private static final Logger logger = Logger.getLogger(AudioPlayer.class.getName());
 
-    public AudioPlayer(File file,String id) {
-            r = new Reproductor(file);
-            ap = new Panel(file,r);
-            path = file.getAbsolutePath();
-            String path2 =  path.substring(0,path.lastIndexOf(".")) + "-temp.txt";
-            String cadena;
-            FileReader f;
-            try {
-                f = new FileReader(path2);
-                BufferedReader b = new BufferedReader(f);
-                try {
-                    if((cadena=b.readLine())!=null){
-                        start = Long.parseLong(cadena);
-                    }if((cadena=b.readLine())!=null){
-                        end = Long.parseLong(cadena);
-                    }  
-                    b.close();
-                } catch (IOException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                }
-            } catch (FileNotFoundException ex) {
-                logger.log(Level.SEVERE, null, ex);
-            }          
-        SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    DockableElement e = new DockableElement();
-                    e.setTitleText(id);
-                    e.add(ap);
-                    DockablesRegistry.getInstance().addAppWideDockable(e);
-                }
-            }); 
+    public AudioPlayer(File file) {
+        r = new Reproductor(file);
+        ap = new Panel(file, r);
+        path = file.getAbsolutePath();
+        String path2 = path.substring(0, path.lastIndexOf(".")) + "-temp.txt";
+        String cadena;
+
+        try (FileReader f = new FileReader(path2); BufferedReader b = new BufferedReader(f)) {
+            if ((cadena = b.readLine()) != null) {
+                start = Long.parseLong(cadena);
+            }
+            if ((cadena = b.readLine()) != null) {
+                end = Long.parseLong(cadena);
+            }
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
+        
+        /*Platform.runLater(() -> {
+          
+            if (stage==null){
+                
+            DockableElement e = new DockableElement();
+            e.setTitleText(dialogBundle.getString("title_player"));
+            stage = new Stage();
+            stage.setTitle(dialogBundle.getString("title_player"));
+            stage.initStyle(StageStyle.DECORATED);  
+            Scene scene = new Scene(ap, 700, 400);  
+            stage.setScene(scene);
+            stage.show();
+
+            DockablesRegistry.getInstance().addAppWideDockable(e);
+            }
+        });*/
+
+    }
+    
+    public Panel getPanel() {
+        return ap;
     }
         
-    
+        
+    public Node getPaneNode() {
+        return ap;
+    }
+
+
     @Override
-    public void pause() {
-        if(isPlaying){
-            ap.pause();
-            isPlaying=false;
-            isPaused=true;
-            r.pause();
+    public void seek(long desiredMillis) {
+        if (desiredMillis >= start && desiredMillis <= end) {
+            r.current(desiredMillis - start);
         }
     }
 
     @Override
-    public void seek(long desiredMillis) {
-        if(desiredMillis>=start && desiredMillis<=end){            
-            r.current(desiredMillis-start);
-        }
-    }
-    
-    @Override
-    public long getStart() {        
+    public long getStart() {
         return start;
     }
 
     @Override
     public long getEnd() {
         return end;
-    } 
+    }
+    
+    public MediaPlayer.Status getStatus() {
+        return r.getStatus(); 
+    }
 
-    @Override
+  
+    //Method play before the 2024 update, this work with the original version of MO in the whole thread of the application
+    /*@Override
     public void play(long millis) {
         if(millis>=start && millis <end){
             new Thread(new Runnable() {
@@ -114,19 +129,59 @@ public class AudioPlayer implements Playable{
             r.stop();
             isPlaying=false;
         }
+    }*/
+    
+    @Override
+    public void play(long requestedMillis) {
+        Platform.runLater(() -> {
+            if (isPaused) {
+                long currentPos = r.time();  
+                ap.play(currentPos, end - start);
+                r.getMediaPlayer().play();
+                isPlaying = true;
+                isPaused = false;
+            } else {
+                final long finalMillis;
+                if (requestedMillis < start || requestedMillis >= end) {
+                    finalMillis = start;
+                } else {
+                    finalMillis = requestedMillis;
+                }
+                ap.stop();
+                r.stop();
+                ap.play(finalMillis - start, end - start);
+                r.getMediaPlayer().seek(Duration.millis(finalMillis - start));
+                r.getMediaPlayer().play();
+                isPlaying = true;
+                isPaused = false;
+            }
+        });
+    }
+
+
+
+    @Override
+    public void pause() {
+        Platform.runLater(() -> {
+            ap.pause();
+            r.getMediaPlayer().pause();
+            isPlaying = false;
+            isPaused = true;
+        });
     }
 
     @Override
     public void stop() {
-        if(isPlaying){
+        Platform.runLater(() -> {
             ap.stop();
-            r.stop();
-            isPlaying=false;
-        }
-    }    
+            r.getMediaPlayer().stop();
+            isPlaying = false;
+            isPaused = true;
+        });
+    }
 
-    @Override
+
     public void sync(boolean bln) {
-        isSync=bln;
+        isSync = bln;
     }
 }
